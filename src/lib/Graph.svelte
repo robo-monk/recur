@@ -152,15 +152,18 @@
       min = 0,
       max = 100,
       resolution = 10
-    ): void {
+    ): any[] {
       let vertices = [];
+      let points = []
       // for (let i: number = min; i++; i <= max) {
       // let i = 1
       let i = min;
       while (i <= max) {
         // console.log(i, fn(i))
         // resolution *= i+1
-        vertices.push(i / 20 - 100, fn(i) * 200, 1);
+        let point = [i / 20 - 100, fn(i) * 200];
+        points.push(point);
+        vertices.push(...point, 1);
         i += 1 / resolution;
       }
       // console.log('adding vertices', vertices)
@@ -170,8 +173,9 @@
       //   y: fn(i),
       // });
       // }
-      console.log(vertices.length)
+      console.log(points.length);
       three.addVertices(vertices);
+      return points;
     }
 
     function xn(x, r) {
@@ -202,14 +206,13 @@
         // ans = xn(ans, r);
         ans = x100(0.42, r);
         r += r > 1 ? (Math.log(r) - Math.log(r - 1)) / 5000 : 0.005;
-        console.info(r);
         yield ans;
         // yield Math.abs(ans) > 100 ? 100 : ans
       }
     }
 
     const rr = newR();
-    plot(
+    let points = plot(
       (i): number => {
         let value = rr.next().value || 1;
         return value;
@@ -220,6 +223,11 @@
       10
       // 10
     );
+
+    console.log(points)
+    // points.forEach(point => {
+    //   point
+    // })
 
     // let ii = 0;
     // while (ii< 1000) {

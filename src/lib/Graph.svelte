@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-import { readable } from "svelte/store";
+  import { readable } from "svelte/store";
   import {
     Scene,
     PerspectiveCamera,
@@ -15,6 +15,8 @@ import { readable } from "svelte/store";
     BufferGeometry,
     Float32BufferAttribute,
     PointsMaterial,
+    Line,
+    LineBasicMaterial,
   } from "three";
 
   let graphContainer: HTMLElement;
@@ -98,11 +100,16 @@ import { readable } from "svelte/store";
         new Float32BufferAttribute(vertices, 3)
       );
 
-      const material = new PointsMaterial({ color: "#fff", side: 10 });
+      const material = new PointsMaterial({ color: "#fff", size: 0.5 });
 
       const points = new Points(geometry, material);
 
+      const lineGeo = new BufferGeometry().setFromPoints(vertices);
+      const lineMaterial = new LineBasicMaterial({ color: "#ffffff" });
+      const line = new Line(geometry, lineMaterial);
+
       this.scene.add(points);
+      // this.scene.add(line);
       return this;
     }
 
@@ -137,7 +144,7 @@ import { readable } from "svelte/store";
       .setSize(size[0], size[1])
       .appendTo(graphContainer)
       // .addMesh({ material: new MeshBasicMaterial({ color: "red" }) })
-      .setCameraPosition({ z: 500 })
+      .setCameraPosition({ z: 300 })
       .render();
 
     function plot(
@@ -150,10 +157,11 @@ import { readable } from "svelte/store";
       // for (let i: number = min; i++; i <= max) {
       // let i = 1
       let i = min;
-      while (i <= max * resolution) {
+      while (i <= max) {
         // console.log(i, fn(i))
-        vertices.push((i / 2) * resolution - 400, fn(i/resolution)*200, 1);
-        i++;
+        // resolution *= i+1
+        vertices.push(i / 20 - 100, fn(i) * 200, 1);
+        i += 1 / resolution;
       }
       // console.log('adding vertices', vertices)
       // vertices.push(i+1, fn(i+1), -1)
@@ -162,7 +170,7 @@ import { readable } from "svelte/store";
       //   y: fn(i),
       // });
       // }
-      // console.log(vertices)
+      console.log(vertices.length)
       three.addVertices(vertices);
     }
 
@@ -171,30 +179,30 @@ import { readable } from "svelte/store";
     }
 
     function x100(x, r) {
-      let i = 0
-      while (i < (Math.random()+1)*100) {
+      let i = 0;
+      while (i < (Math.random() + 1) * r * 500) {
         x = xn(x, r);
         // if (res.has(x)) return Math.random() > .5 ? res[res.size - 1] : x
-        // if (res.has(x)) return x 
-        i ++ 
+        // if (res.has(x)) return x
+        i++;
         // yield Math.abs(ans) > 100 ? 100 : ans
       }
 
-      return x
+      return x;
     }
     // function xn(x, r) {
     //   return r*x*(1-x)
     // }
 
     function* newR() {
-      let r = 0.00;
+      let r = 0.0;
       let ans = 0.53;
       while (true) {
         // ans = xn(ans, r);
         // ans = xn(ans, r);
-        ans = x100(0.73, r);
-        r += 0.005;
-        console.info(r)
+        ans = x100(0.42, r);
+        r += r > 1 ? (Math.log(r) - Math.log(r - 1)) / 5000 : 0.005;
+        console.info(r);
         yield ans;
         // yield Math.abs(ans) > 100 ? 100 : ans
       }
@@ -207,9 +215,9 @@ import { readable } from "svelte/store";
         return value;
         // rr.next().value || 1
       },
-      1,
+      2,
       5000,
-      1
+      10
       // 10
     );
 
